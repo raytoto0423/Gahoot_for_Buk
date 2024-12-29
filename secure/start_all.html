@@ -9,7 +9,7 @@
     <script>
         let wss;
         window.onload = () => {
-            const ws = new WebSocket('ws://172.20.10.8:8001');
+            const ws = new WebSocket('wss://172.20.10.8:8001');
             wss = ws;
             ws.onopen = () => {
                 console.log('admin WebSocket connection established');
