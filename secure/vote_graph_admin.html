@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>투표 결과</title>
+    <!-- Bootstrap CSS -->
+</head>
+<body>
+<link rel="stylesheet" href="stylesheet/vote_graph.css">
+<div class="container">
+    <h1 class="text-center my-4" style="color: white;">투표 결과</h1>
+
+    <!-- 그래프 -->
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+            <div class="chart-container">
+                <canvas id="voteChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- 상세 정보 -->
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title text-center">투표 상세 결과</h5>
+                    <div class="list-group">
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <span id="candidate1Name"></span>
+                            <span class="badge bg-primary rounded-pill" id="candidate1Votes"></span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <span id="candidate2Name"></span>
+                            <span class="badge bg-danger rounded-pill" id="candidate2Votes"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center my-4">
+                <button class="btn btn-warning" id="restartButton">다음 투표 시작</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>

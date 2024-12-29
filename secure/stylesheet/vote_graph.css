@@ -1,0 +1,64 @@
+body, html {
+    height: 100%; /* 전체 화면 크기 */
+    margin: 0; /* 기본 여백 제거 */
+}
+
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* 화면 전체 높이 */
+    margin: 0;
+    background-color: #38368C; /* 배경 색 */
+}
+
+.container {
+    width: 100%; /* 전체 너비 사용 */
+    max-width: 1200px; /* 최대 너비 설정 */
+    padding: 20px; /* 여백 */
+    box-sizing: border-box;
+    text-align: center; /* 텍스트 중앙 정렬 */
+}
+
+.chart-container {
+    max-width: 80%; /* 차트 크기 제한 */
+    margin: 20px auto; /* 자동으로 가운데 정렬 */
+    padding: 20px;
+    background-color: #2B2A55; /* 차트 배경 색 */
+    border-radius: 10px; /* 모서리 둥글게 */
+}
+
+.card {
+    margin-top: 20px;
+    width: 100%;
+    max-width: 350px; /* 카드 최대 너비 설정 */
+    margin: 20px auto; /* 카드 간격 */
+    border-radius: 10px; /* 카드 모서리 둥글게 */
+    background-color: #1F1E3A; /* 카드 배경 색 */
+    color: white; /* 카드 내 글씨 색 */
+}
+
+.card img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover; /* 이미지 크기 조정 */
+    border-radius: 10px 10px 0 0; /* 이미지 위쪽 모서리 둥글게 */
+}
+
+.card-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.card-body {
+    padding: 20px;
+    text-align: center; /* 카드 내 텍스트 중앙 정렬 */
+}
+
+.card-body p {
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-top: 10px;
+}

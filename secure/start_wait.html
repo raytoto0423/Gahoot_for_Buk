@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>대기중</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="stylesheet/start_wait.css">
+</head>
+<body>
+
+<div class="waiting-container">
+  <h1>대기 중입니다...</h1>
+  <p>host가 투표를 시작하기 전까지 기다려 주세요</p>
+  <div class="spinner-border text-primary" role="status">
+    <span class="visually-hidden">host 대기중...</span>
+  </div>
+</div>
+
+<script>
+  window.onload = () => {
+    const ws = new WebSocket('ws://localhost:3000');
+    const heading = document.querySelector('h1');
+
+    ws.onopen = () => {
+      console.log('WebSocket connection established');
+      heading.textContent = 'WebSocket 연결됨, 시작 대기중';
+    };
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.action === 'redirect' && data.url) {
+        window.location.href = data.url;
+      }
+    };
+
+    ws.onclose = () => {
+      console.log('WebSocket connection closed');
+      heading.textContent = 'WebSocket 연결 종료됨';
+    };
+  };
+</script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

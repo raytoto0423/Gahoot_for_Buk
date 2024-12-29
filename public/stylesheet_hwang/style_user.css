@@ -1,0 +1,117 @@
+/* 전체 화면 배경 설정 */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+}
+
+/* 배경 컨테이너 */
+.background {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* 파란색 섹션 */
+.blue-section {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-color: #336de1;
+    clip-path: polygon(0 0, 50% 0, 100% 100%, 0 100%);
+    animation: moveBlue 5s infinite alternate ease-in-out;
+}
+
+/* 빨간색 섹션 */
+.red-section {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-color: #b8120a;
+    clip-path: polygon(50% 0, 100% 0, 100% 100%, 50% 100%);
+    animation: moveRed 5s infinite alternate ease-in-out;
+}
+
+/* 버튼 스타일 */
+.choice {
+    position: fixed;
+    width: 90vw;
+    height: 40vh;
+    left: 5vw;
+    z-index: 5;
+    background-color: rgba(255, 255, 255, 0.6);
+    border: none;
+    font-size: 2rem;
+    font-weight: bold;
+    color: black;
+    cursor: pointer;
+    border-radius: 30px;
+
+    float: left;
+    box-shadow: 10px 10px 10px rgba(255, 255, 255, 0.4);
+    transition-duration: 0.3s;
+}
+
+.choice:active {
+    box-shadow: none;
+}
+
+#choice1 {
+    top: 5vh;
+}
+
+#choice2 {
+    bottom: 5vh;
+}
+
+/* 중앙 이미지 스타일 */
+#versus {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+
+    width: auto;
+    height: auto;
+    max-width: 40vw;
+    max-height: 60vh;
+    min-width: 10vw;
+    min-height: 15vh;
+}
+
+/* 파란색 애니메이션 */
+@keyframes moveBlue {
+    0% {
+        clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
+    }
+    25% {
+        clip-path: polygon(0 0, 55% 0, 45% 100%, 0 100%);
+    }
+    75% {
+        clip-path: polygon(0 0, 45% 0, 55% 100%, 0 100%);
+    }
+    100% {
+        clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
+    }
+}
+
+/* 빨간색 애니메이션 */
+@keyframes moveRed {
+    0% {
+        clip-path: polygon(50% 0, 100% 0, 100% 100%, 50% 100%);
+    }
+    25% {
+        clip-path: polygon(55% 0, 100% 0, 100% 100%, 45% 100%);
+    }
+    75% {
+        clip-path: polygon(45% 0, 100% 0, 100% 100%, 55% 100%);
+    }
+    100% {
+        clip-path: polygon(50% 0, 100% 0, 100% 100%, 50% 100%);
+    }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "gahoot",
+  "version": "1.0.0",
+  "description": "Gahoot!",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "build": "echo 'No build step is defined. Add a build tool if needed.'",
+    "setup": "npm install && echo 'Dependencies installed.'",
+    "start:setup": "npm run setup && npm start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lalala1235/Gahoot.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lalala1235/Gahoot/issues"
+  },
+  "homepage": "https://github.com/lalala1235/Gahoot#readme",
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "express": "^4.21.2",
+    "fs": "^0.0.1-security",
+    "jsdom": "^25.0.1",
+    "path": "^0.12.7",
+    "ws": "^8.18.0"
+  }
+}
