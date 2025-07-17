@@ -21,8 +21,8 @@ function parseCookies(cookieHeader) {
     );
 }
 
-module.exports = (port, db) => {
-    const wss = new webSocket.Server({port: port})
+module.exports = (server, db) => {
+    const wss = new webSocket.Server({ server: server });
 
     wss.on('connection', (ws, req) => {
         const cookies = parseCookies(req.headers.cookie);
