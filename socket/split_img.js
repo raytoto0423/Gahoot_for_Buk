@@ -97,9 +97,15 @@ function addWinner(winningImage_int) {
 }
 
 function getCurrentStage() {
-    const total = imageFiles.length + winner.length + (currentselectedImages.length || 0);
-    const stage = Math.pow(2, Math.ceil(Math.log2(total)));
-    return `${stage}강`;
+    const total = winner.length + currentselectedImages.length;
+
+    if (total >= 64) return "64강";
+    if (total >= 32) return "32강";
+    if (total >= 16) return "16강";
+    if (total >= 8)  return "8강";
+    if (total >= 4)  return "4강";
+    if (total === 2) return "결승";
+    return "";
 }
 
 module.exports = {
