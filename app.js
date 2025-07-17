@@ -102,6 +102,8 @@ app.post('/login', (req, res) => {
 
 app.post('/logout', (req, res) => {
   if (loginHandler.getCookie(req)) {
+    const user = loginHandler.getCookie(req);
+    loginHandler.db.delete(user.username);
     loginHandler.removeCookie(res)
     res.redirect('/signup.html')
   }
