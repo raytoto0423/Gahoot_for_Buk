@@ -107,31 +107,33 @@
                         .then(html => {
                             document.body.innerHTML = html;
 
-                            initializeAdminPage();
+                            requestAnimationFrame(() => {
+                                initializeAdminPage();
 
-                            if (data.stage) {
-                                const stageEl = document.getElementById('stageText');
-                                if (stageEl) {
-                                    stageEl.textContent = `현재 라운드: ${data.stage}`;
+                                if (data.stage) {
+                                    const stageEl = document.getElementById('stageText');
+                                    if (stageEl) {
+                                        stageEl.textContent = `현재 라운드: ${data.stage}`;
+                                    }
                                 }
-                            }
 
-                            const endVoteButton = document.getElementById('end_vote');
-                            if (endVoteButton) {
-                                endVoteButton.addEventListener('click', function () {
-                                    ws.send(JSON.stringify({ action: "end_vote" }));
-                                });
-                            }
+                                const endVoteButton = document.getElementById('end_vote');
+                                if (endVoteButton) {
+                                    endVoteButton.addEventListener('click', function () {
+                                        ws.send(JSON.stringify({ action: "end_vote" }));
+                                    });
+                                }
 
-                            const candidate1Img = document.getElementById("cand1");
-                            if (candidate1Img) {
-                                candidate1Img.src = data.vote1;
-                            }
+                                const candidate1Img = document.getElementById("cand1");
+                                if (candidate1Img) {
+                                    candidate1Img.src = data.vote1;
+                                }
 
-                            const candidate2Img = document.getElementById("cand2");
-                            if (candidate2Img) {
-                                candidate2Img.src = data.vote2;
-                            }
+                                const candidate2Img = document.getElementById("cand2");
+                                if (candidate2Img) {
+                                    candidate2Img.src = data.vote2;
+                                }
+                            });
                         })
                         .catch(err => {
                             console.error('Failed to load page: ', err);
