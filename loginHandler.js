@@ -51,7 +51,15 @@ function checkCookieFromHTTPRequest(req, cookieName) {
 }
 
 function existIn(li, ele) { return li.indexOf(ele) > -1 }
-function getCookie(req) { return JSON.parse(req.cookies[USER_COOKIE_KEY]); }
+function getCookie(req) {
+    try {
+        const raw = req.cookies?.[USER_COOKIE_KEY];
+        if (!raw) return null;
+        return JSON.parse(raw);
+    } catch (e) {
+        return null;
+    }
+}
 function removeCookie(res) { res.clearCookie(USER_COOKIE_KEY); }
 function addCookie(data, res) { res.cookie(USER_COOKIE_KEY, JSON.stringify(data)); }
 
