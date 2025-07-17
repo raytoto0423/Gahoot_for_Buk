@@ -62,22 +62,25 @@ app.get('/', (req, res) => {
 
 app.post('/signup', (req, res) => {
   const { username } = req.body;
-  const exists = loginHandler.db.get(username);
 
-  if (exists) {
-      res.status(400).send(`duplicate username: ${username}`);
-      return;
+  // 기존 쿠키가 있다면 먼저 제거
+  const currentUser = loginHandler.getCookie(req);
+  if (currentUser) {
+    loginHandler.db.delete(currentUser.username);
+    loginHandler.removeCookie(res);
   }
 
-  const newUser = {
-    username
-  };
-  loginHandler.db.set(username, newUser);
+  const exists = loginHandler.db.get(username);
+  if (exists) {
+    res.status(400).send(`duplicate username: ${username}`);
+    return;
+  }
 
-  loginHandler.addCookie(newUser, res)
-  console.log(loginHandler.db)
+  const newUser = { username };
+  loginHandler.db.set(username, newUser);
+  loginHandler.addCookie(newUser, res);
+  console.log(loginHandler.db);
   res.redirect('/');
-  return;
 });
 
 app.post('/login', (req, res) => {
@@ -101,15 +104,15 @@ app.post('/login', (req, res) => {
 })
 
 app.post('/logout', (req, res) => {
-  if (loginHandler.getCookie(req)) {
-    loginHandler.db.delete(loginHandler.getCookie(req).username);
-    loginHandler.removeCookie(res)
-    res.redirect('/signup.html')
+  const user = loginHandler.getCookie(req);
+  if (user && user.username) {
+    loginHandler.db.delete(user.username);  // ✅ 안전하게 삭제
+    loginHandler.removeCookie(res);
+    res.redirect('/signup.html');
+  } else {
+    res.send(`<script>alert('로그아웃 실패 : 로그인되어 있지 않습니다.');</script>`);
   }
-  else {
-    res.send(`<script>alert('로그아웃 실패 : 로그인 되어있지 않습니다.');</script>`)
-  }
-})
+});
 
 const fs = require('fs'); // ← 이거 꼭 상단에 추가
 
@@ -130,5 +133,11 @@ app.get('/user-list', (req, res) => {
       .filter(user => user.username && user.username !== 'raytoto0423')  // 관리자 제외
       .map(user => user.username);
   res.json({ users });
+});
+
+app.get('/check-username', (req, res) => {
+  const { username } = req.query;
+  const exists = loginHandler.db.has(username);
+  res.json({ exists });
 });
 
