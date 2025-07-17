@@ -92,7 +92,7 @@
 
             setInterval(fetchUserList, 3000);
 
-            const ws = new WebSocket('ws://11.190.51.50:8001');
+            const ws = new WebSocket(`wss://${window.location.host}`);
             wss = ws;
 
             ws.onopen = () => {

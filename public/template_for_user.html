@@ -8,7 +8,7 @@
     <script>
         let wss
         window.onload = () => {
-            const ws = new WebSocket('ws:11.190.51.50:8001');
+            const ws = new WebSocket(`wss://${window.location.host}`);
 
             ws.onopen = () => {
                 console.log('WebSocket connection established');

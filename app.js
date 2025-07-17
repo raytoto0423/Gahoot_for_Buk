@@ -1,4 +1,5 @@
 const express = require('express');
+const http = require('http');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const loginHandler = require('./loginHandler.js')
@@ -15,13 +16,13 @@ app.use(express.static(path.join(__dirname, 'db_char')));
 
 app.use(loginHandler.secureStatic({'/waiting.html': 'USER', '/start_all.html': 'ADMIN'}, loginHandler.db));
 
-const server = app.listen(8000, () => {
-    console.log('server is running at 8000');
+const server = http.createServer(app);
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
-
-const port = 8001
-webSocket(8001, loginHandler.db)
-console.log(`websocket server is running at ${port}`)
+webSocket(server, loginHandler.db);
+console.log(`websocket server is running at ${PORT}`)
 
 // root page
 app.get('/', (req, res) => {
