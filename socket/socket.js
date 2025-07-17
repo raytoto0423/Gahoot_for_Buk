@@ -9,6 +9,7 @@ const {currentselectedImages, addWinner, winner} = require("./split_img");
 
 let sockets = []
 let admin_acc
+let voteInterval;
 
 function parseCookies(cookieHeader) {
     if (!cookieHeader) return {};
@@ -41,6 +42,21 @@ module.exports = (port, db) => {
 
         if (user_data.password === 'wlqrkrhtlvek') {
             admin_acc = ws
+            // 실시간 투표 현황 전송
+            voteInterval = setInterval(() => {
+                if (votes.vote_started && admin_acc && admin_acc.readyState === 1) {
+                    const currentResult = votes.get_vote()[0];
+                    const voterCount = votes.get_vote()[1];  // 투표한 인원 수
+                    const totalUsers = votes.get_total_user_count();
+
+                    admin_acc.send(JSON.stringify({
+                        action: "progress",
+                        result: currentResult,
+                        voterCount: voterCount,
+                        totalUsers: totalUsers
+                    }));
+                }
+            }, 3000);
             ws.on('message', (res) => {
                 const message = JSON.parse(res.toString());
                 if (message.action === "startVote") { // 투표 시작
@@ -81,6 +97,9 @@ module.exports = (port, db) => {
                 }
             });
         } else {
+            const acc = user_data.username;
+            votes.register_user(acc);
+
             ws.on('message', (req) => {
                 const msg = JSON.parse(req.toString());
                 const acc = JSON.parse(decodeURIComponent(msg.acc)).username; /* TODO: msg.acc에 있는 username이 파싱되지 않은 채로 오므로 파싱되어서 오도록 변경할 것 */
@@ -104,6 +123,10 @@ module.exports = (port, db) => {
             })
             if (ws.id === admin_acc) {
                 admin_acc = null
+            }
+            if (voteInterval) {
+                clearInterval(voteInterval);
+                voteInterval = null;
             }
             console.log(sockets.length, code, reason)
         })

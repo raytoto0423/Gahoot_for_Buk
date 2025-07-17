@@ -6,43 +6,43 @@
     <title>template_for_user</title>
     <link rel="stylesheet" href="stylesheet_hwang/style_user.css">
     <script>
-    let wss
-    window.onload = () => {
-        const ws = new WebSocket('wss:172.20.10.8:8001');
+        let wss
+        window.onload = () => {
+            const ws = new WebSocket('ws:11.190.51.50:8001');
 
-        ws.onopen = () => {
-            console.log('WebSocket connection established');
+            ws.onopen = () => {
+                console.log('WebSocket connection established');
+            };
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (data.action === 'redirect' && data.url) {
+                    window.location.href = data.url;
+                } else if (data.action === 'wait' && data.url) {
+                    fetch(data.url)
+                        .then(response => response.text())
+                        .then(html => {
+                            document.body.innerHTML = html;  // HTML 내용 삽입
+                        })
+                        .catch(err => {
+                            console.error('Failed to load page: ', err);
+                        });
+                } else if (data.action === "ending") {
+                    // 승자 정보와 메시지를 가져옴
+                    const winner = data.winner;
+                    const message = data.message;
+
+                    // URL 변경 (ending.html로 리디렉션)
+                    window.location.href = "/ending.html?winner=" + encodeURIComponent(winner) + "&message=" + encodeURIComponent(message);
+                }
+            };
+
+            ws.onclose = () => {
+                console.log('WebSocket connection closed');
+            };
+
+            wss = ws;
         };
-
-        ws.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            if (data.action === 'redirect' && data.url) {
-                window.location.href = data.url;
-            } else if (data.action === 'wait' && data.url) {
-                fetch(data.url)
-                    .then(response => response.text())
-                    .then(html => {
-                        document.body.innerHTML = html;  // HTML 내용 삽입
-                    })
-                    .catch(err => {
-                        console.error('Failed to load page: ', err);
-                    });
-            } else if (data.action === "ending") {
-                // 승자 정보와 메시지를 가져옴
-                const winner = data.winner;
-                const message = data.message;
-
-                // URL 변경 (ending.html로 리디렉션)
-                window.location.href = "/ending.html?winner=" + encodeURIComponent(winner) + "&message=" + encodeURIComponent(message);
-            }
-        };
-
-        ws.onclose = () => {
-            console.log('WebSocket connection closed');
-        };
-
-        wss = ws;
-    };
     </script>
 </head>
 <script>
@@ -58,16 +58,16 @@
 </div>
 <script>
     const cookieValue = document.cookie
-    .split('; ')
-    .find(row => row.startsWith('USER='))
-    ?.split('=')[1];
+        .split('; ')
+        .find(row => row.startsWith('USER='))
+        ?.split('=')[1];
 
     document.getElementById('choice1').addEventListener('click', () => {
-        wss.send(JSON.stringify({ action: "vote", num: 1, acc: cookieValue}))
+        wss.send(JSON.stringify({action: "vote", num: 1, acc: cookieValue}))
     })
 
     document.getElementById('choice2').addEventListener('click', () => {
-        wss.send(JSON.stringify({ action: "vote", num: 2, acc: cookieValue}))
+        wss.send(JSON.stringify({action: "vote", num: 2, acc: cookieValue}))
     })
 </script>
 </body>

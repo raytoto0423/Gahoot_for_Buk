@@ -8,28 +8,119 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         let wss;
+
+        function fetchPhotoCount() {
+            fetch('/photo-count')
+                .then(response => response.json())
+                .then(data => {
+                    const countDiv = document.getElementById('photoCount');
+                    countDiv.textContent = `참가사진: ${data.count}장`;
+                })
+                .catch(err => {
+                    console.error('사진 개수 불러오기 실패:', err);
+                });
+        }
+
+        function fetchUserList() {
+            fetch('/user-list')
+                .then(response => response.json())
+                .then(data => {
+                    const ul = document.getElementById('userList');
+                    const countDiv = document.getElementById('userCount');
+                    ul.innerHTML = '';
+
+                    const totalUsers = data.users.length;
+                    const recentUsers = data.users.slice(-10); // 마지막 10명만
+
+                    recentUsers.forEach(username => {
+                        const li = document.createElement('li');
+                        li.textContent = username;
+                        ul.appendChild(li);
+                    });
+
+                    if (totalUsers > 10) {
+                        const li = document.createElement('li');
+                        li.textContent = `외 ${totalUsers - 10}명...`;
+                        li.style.fontStyle = 'italic';
+                        ul.appendChild(li);
+                    }
+
+                    if (countDiv) {
+                        countDiv.textContent = `총 ${totalUsers}명 참가 중`;
+                    }
+                })
+                .catch(err => {
+                    console.error('유저 목록 불러오기 실패:', err);
+                });
+        }
+
+        function initializeAdminPage() {
+            const stageText = document.getElementById('stageText');
+            const endVoteButton = document.getElementById('end_vote');
+            const voteBar = document.getElementById('voteParticipationBar');
+            const voteText = document.getElementById('voteParticipationText');
+
+            if (endVoteButton) {
+                endVoteButton.onclick = () => {
+                    if (wss) {
+                        wss.send(JSON.stringify({ action: "end_vote" }));
+                    }
+                };
+            }
+
+            // 기본값 초기화
+            if (stageText) stageText.textContent = '';
+            if (voteBar) voteBar.style.width = '0%';
+            if (voteText) voteText.textContent = '0%';
+
+            // 숨겨진 카운터 초기화
+            const vote1 = document.getElementById("vote-count-1");
+            const vote2 = document.getElementById("vote-count-2");
+            if (vote1) vote1.innerText = "0";
+            if (vote2) vote2.innerText = "0";
+        }
+
+
         window.onload = () => {
-            const ws = new WebSocket('wss://172.20.10.8:8001');
+            fetchUserList();
+            initializeAdminPage();
+        };
+
+
+        window.onload = () => {
+            fetchPhotoCount(); // ← 페이지 로드시 참가사진 수 표시
+
+            setInterval(fetchUserList, 3000);
+
+            const ws = new WebSocket('ws://11.190.51.50:8001');
             wss = ws;
+
             ws.onopen = () => {
                 console.log('admin WebSocket connection established');
             };
 
             ws.onmessage = (event) => {
-                data = JSON.parse(event.data)
+                const data = JSON.parse(event.data);
                 if (data.action === 'restart' && data.url && data.vote1 && data.vote2) {
                     fetch(data.url)
                         .then(response => response.text())
                         .then(html => {
-                            document.body.innerHTML = html;  // HTML 내용 삽입
+                            document.body.innerHTML = html;
+
+                            initializeAdminPage();
+
+                            if (data.stage) {
+                                const stageEl = document.getElementById('stageText');
+                                if (stageEl) {
+                                    stageEl.textContent = `현재 라운드: ${data.stage}`;
+                                }
+                            }
 
                             const endVoteButton = document.getElementById('end_vote');
                             if (endVoteButton) {
-                                endVoteButton.addEventListener('click', function() {
+                                endVoteButton.addEventListener('click', function () {
                                     ws.send(JSON.stringify({ action: "end_vote" }));
                                 });
-                            } else {
-                                console.error('end_vote button not found');
                             }
 
                             const candidate1Img = document.getElementById("cand1");
@@ -49,32 +140,46 @@
                     fetch(data.url)
                         .then(response => response.text())
                         .then(html => {
-                            document.body.innerHTML = html;  // HTML 내용 삽입
+                            document.body.innerHTML = html;
+                            initializeAdminPage();
                         })
                         .catch(err => {
                             console.error('Failed to load page: ', err);
                         });
                     if (data.winner) {
-                        document.getElementById("winnerImage").src = data.winner;
+                        const winnerImage = document.getElementById("winnerImage");
+                        if (winnerImage) winnerImage.src = data.winner;
                     }
-                } else if (data.action === 'result'  && data.url && data.result) {
+                } else if (data.action === 'result' && data.url && data.result) {
                     fetch(data.url)
                         .then(response => response.text())
                         .then(html => {
-                            document.body.innerHTML = html;  // HTML 내용 삽입
+                            document.body.innerHTML = html;
+
+                            if (data.result) {
+                                const total = data.result[0] + data.result[1];
+                                const TOTAL_USERS = 32; // 전체 유저 수 (임시로 32명이라 설정)
+                                const percent = (total / TOTAL_USERS * 100).toFixed(1);
+
+                                const progressBar = document.getElementById("voteProgress");
+                                if (progressBar) {
+                                    progressBar.style.width = `${percent}%`;
+                                    progressBar.setAttribute("aria-valuenow", percent);
+                                    progressBar.textContent = `${total}명 참여 (${percent}%)`;
+                                }
+                            }
 
                             document.getElementById("restartButton").addEventListener("click", () => {
                                 console.log("restart button clicked")
                                 ws.send(JSON.stringify({ action: "startVote" }))
                             });
 
-                            const percent = (data.result[0] / (data.result[0] + data.result[1])) * 100
+                            const percent = (data.result[0] / (data.result[0] + data.result[1])) * 100;
 
                             document.getElementById("candidate1Name").textContent = "후보 1";
-                            document.getElementById("candidate1Votes").textContent = `${data.result[0]}명 (${percent}%)`;
+                            document.getElementById("candidate1Votes").textContent = `${data.result[0]}명 (${percent.toFixed(1)}%)`;
                             document.getElementById("candidate2Name").textContent = "후보 2";
-                            document.getElementById("candidate2Votes").textContent = `${data.result[1]}명 (${100 - percent}%)`;
-                            console.log(`"후보 1": ${data.result[0]}, "후보 2": ${data.result[1]}`)
+                            document.getElementById("candidate2Votes").textContent = `${data.result[1]}명 (${(100 - percent).toFixed(1)}%)`;
 
                             const ctx = document.getElementById('voteChart').getContext('2d');
                             const winningIndex = data.result[0] > data.result[1] ? 1 : (data.result[0] < data.result[1] ? 2 : 0);
@@ -84,23 +189,18 @@
                                 winner: winningIndex
                             }));
 
-                            // 차트를 오버라이드하려면 차트가 이미 존재하는지 확인
-                            let chart = Chart.getChart(ctx);  // 이미 생성된 차트를 가져옵니다. 차트가 없으면 null을 반환
-                            console.log("차트: " + chart)
-
+                            let chart = Chart.getChart(ctx);
                             if (chart) {
-                                // 차트가 이미 존재하면 데이터를 업데이트
-                                chart.data.datasets[0].data = [data.result[0], data.result[1]];  // 새로운 데이터로 업데이트
+                                chart.data.datasets[0].data = [data.result[0], data.result[1]];
                                 chart.update();
                             } else {
-                                // 차트가 없으면 새로 생성
                                 chart = new Chart(ctx, {
                                     type: 'doughnut',
                                     data: {
                                         labels: ['후보 1', '후보 2'],
                                         datasets: [{
                                             label: '투표 결과',
-                                            data: [data.result[0], data.result[1]],  // 처음 데이터
+                                            data: [data.result[0], data.result[1]],
                                             backgroundColor: ['#007bff', '#dc3545'],
                                             borderColor: ['#007bff', '#dc3545'],
                                             borderWidth: 2,
@@ -114,7 +214,7 @@
                                         plugins: {
                                             tooltip: {
                                                 callbacks: {
-                                                    label: function(tooltipItem) {
+                                                    label: function (tooltipItem) {
                                                         const votes = tooltipItem.raw;
                                                         const percentage = ((votes / (data.result[0] + data.result[1])) * 100).toFixed(1);
                                                         return `${votes}명 (${percentage}%)`;
@@ -124,39 +224,31 @@
                                             legend: {
                                                 position: 'top',
                                                 labels: {
-                                                    font: {
-                                                        size: 14
-                                                    },
+                                                    font: { size: 14 },
                                                     color: '#ffffff'
                                                 }
                                             }
                                         },
-                                        // 중앙 텍스트를 직접 그리기 위한 설정
                                         animation: {
                                             onComplete: function () {
                                                 if (this) {
                                                     const ctx = this.ctx;
                                                     const centerX = this.width / 2;
                                                     const centerY = this.height / 2;
-                                                    ctx.font = '24px Arial'; // 폰트 크기 및 폰트 종류
-                                                    ctx.fillStyle = '#ffffff'; // 텍스트 색상
-                                                    ctx.textAlign = 'center'; // 중앙 정렬
-                                                    ctx.textBaseline = 'middle'; // 중앙 정렬
+                                                    ctx.font = '24px Arial';
+                                                    ctx.fillStyle = '#ffffff';
+                                                    ctx.textAlign = 'center';
+                                                    ctx.textBaseline = 'middle';
 
-                                                    const lineHeight = 30;  // 줄 간격 (적절히 조정)
-
-                                                    // 첫 번째 줄 Y 위치
-                                                    const firstLineY = centerY
-                                                    // 두 번째 줄 Y 위치
+                                                    const lineHeight = 30;
+                                                    const firstLineY = centerY;
                                                     const secondLineY = centerY + lineHeight;
 
-                                                    let result = data.result[0] < data.result[1] ? "후보 2 승" : "후보 1 승"
-                                                    result = data.result[0] === data.result[1] ? "무승부" : result
+                                                    let result = data.result[0] < data.result[1] ? "후보 2 승" : "후보 1 승";
+                                                    if (data.result[0] === data.result[1]) result = "무승부";
 
-                                                    ctx.fillText(`투표 결과`, centerX, firstLineY); // 중앙에 텍스트 표시
-                                                    ctx.fillText(`${result}`, centerX, secondLineY)
-                                                } else {
-                                                    console.error("Chart not initialized properly.");
+                                                    ctx.fillText(`투표 결과`, centerX, firstLineY);
+                                                    ctx.fillText(`${result}`, centerX, secondLineY);
                                                 }
                                             }
                                         }
@@ -168,11 +260,8 @@
                             console.error('Failed to load page: ', err);
                         });
                 } else if (data.action === "ending") {
-                    // 승자 정보와 메시지를 가져옴
                     const winner = data.winner;
                     const message = data.message;
-
-                    // URL 변경 (ending.html로 리디렉션)
                     window.location.href = "/ending.html?winner=" + encodeURIComponent(winner) + "&message=" + encodeURIComponent(message);
                 }
             };
@@ -181,23 +270,34 @@
                 console.log('admin WebSocket connection closed');
             };
 
-            document.getElementById('startVoteButton').addEventListener('click', function() {
-                const message = { action: 'startVote' };
-                ws.send(JSON.stringify(message))
-            });
-
-            return ws;
-        }
+            const startButton = document.getElementById('startVoteButton');
+            if (startButton) {
+                startButton.addEventListener('click', () => {
+                    const message = { action: 'startVote' };
+                    ws.send(JSON.stringify(message));
+                });
+            } else {
+                console.error("startVoteButton not found");
+            }
+        };
     </script>
+
 </head>
 <body>
-<div class="container">
+<div class="container center-box">
     <h1>
         <img src="./stylesheet/GBS.png" alt="GBS">
         투표를 시작합니다!
     </h1>
     <p>아래 버튼을 눌러 투표를 시작하세요.</p>
+    <p id="photoCount" style="color:black; font-weight: bold;"></p>
     <button id="startVoteButton">투표 시작</button>
 </div>
+<div class="container" style="margin-top: 30px;">
+    <h2>참가자 목록</h2>
+    <ul id="userList" style="color:black; text-align: left;"></ul>
+    <p id="userCount" style="color:black; font-weight: bold; margin-top: 10px;"></p>
+</div>
+
 </body>
 </html>

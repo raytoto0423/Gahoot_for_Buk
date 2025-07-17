@@ -38,7 +38,7 @@ app.get('/', (req, res) => {
     res.status(200).sendFile(__dirname + '/public/root.html');
     return;
   }
-  
+
   if (loginHandler.cookieExists(req) && !loginHandler.checkCookie(req)) {
     res.clearCookie('USER');
     res.send(`
@@ -67,7 +67,7 @@ app.post('/signup', (req, res) => {
       res.status(400).send(`duplicate username: ${username}`);
       return;
   }
-  
+
   const newUser = {
     username
   };
@@ -100,7 +100,7 @@ app.post('/login', (req, res) => {
 })
 
 app.post('/logout', (req, res) => {
-  if (loginHandler.getCookie(req)) { 
+  if (loginHandler.getCookie(req)) {
     loginHandler.removeCookie(res)
     res.redirect('/signup.html')
   }
@@ -108,3 +108,25 @@ app.post('/logout', (req, res) => {
     res.send(`<script>alert('로그아웃 실패 : 로그인 되어있지 않습니다.');</script>`)
   }
 })
+
+const fs = require('fs'); // ← 이거 꼭 상단에 추가
+
+app.get('/photo-count', (req, res) => {
+  const folderPath = path.join(__dirname, 'db_char');
+  fs.readdir(folderPath, (err, files) => {
+    if (err) {
+      res.status(500).json({ count: 0 });
+    } else {
+      const visibleFiles = files.filter(file => !file.startsWith('.'));
+      res.json({ count: visibleFiles.length });
+    }
+  });
+});
+
+app.get('/user-list', (req, res) => {
+  const users = Array.from(loginHandler.db.values())
+      .filter(user => user.username && user.username !== 'raytoto0423')  // 관리자 제외
+      .map(user => user.username);
+  res.json({ users });
+});
+

@@ -41,7 +41,7 @@ body {
 /* 카드 스타일 */
 .card {
     width: 100%;
-    max-width: 450px; /* 카드 최대 너비 설정 (큰 크기) */
+    max-width: 350px; /* 카드 최대 너비 설정 (큰 크기) */
     margin: 20px 0; /* 카드 간격 */
     border-radius: 10px; /* 카드 모서리 둥글게 */
     background-color: #1F1E3A; /* 카드 배경 색 */
@@ -98,4 +98,12 @@ body {
     max-height: 30vh;
     min-width: 10vw;
     min-height: 15vh;
+}
+
+#cand1, #cand2 {
+    width: 100%;
+    height: auto;
+    max-height: 500px; /* 필요 시 조절 */
+    object-fit: contain; /* 비율 유지하면서 카드에 맞추기 */
+    border-radius: 8px;
 }

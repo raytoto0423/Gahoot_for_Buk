@@ -7,12 +7,12 @@
     <link rel="stylesheet" href="stylesheet/style_admin.css">
 </head>
 <body>
-
 <div class="container_admin">
     <h1 class="text-center my-4 d-flex justify-content-between align-items-center" style="color: white;">
         이상형 월드컵 - 후보 소개
         <button class="btn btn-primary" style="margin-left: 20px;" id="end_vote">투표 종료</button>
     </h1>
+    <p id="stageText" class="text-center" style="color:white; font-weight:bold; font-size: 20px;"></p>
 
     <!-- 후보 목록 -->
     <div class="row d-flex justify-content-between">
@@ -39,5 +39,17 @@
         </div>
     </div>
 </div>
+<!-- 투표 참여율 bar -->
+<div style="margin-top: 20px;">
+    <label for="voteParticipation">투표 참여율</label>
+    <div style="background-color: #ddd; border-radius: 5px; overflow: hidden; width: 100%; height: 24px;">
+        <div id="voteParticipationBar" style="height: 100%; width: 0%; background-color: #4caf50;"></div>
+    </div>
+    <p id="voteParticipationText" style="text-align: right; margin-top: 4px;">0%</p>
+</div>
+
+<!-- 숨겨진 득표 수 -->
+<span id="vote-count-1" style="display: none;">0</span>
+<span id="vote-count-2" style="display: none;">0</span>
 </body>
 </html>
