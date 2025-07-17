@@ -97,7 +97,7 @@ function addWinner(winningImage_int) {
 }
 
 function getCurrentStage() {
-    const total = currentselectedImages.length;
+    const total = imageFiles.length;
 
     if (total >= 64) return "64강";
     if (total >= 32) return "32강";
